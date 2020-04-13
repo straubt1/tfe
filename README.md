@@ -7,7 +7,7 @@ Helper for TFE status/debugging.
 
 ```sh
 # Copy script to a TFE instance:
-curl -o tfe.sh https://
+curl -o tfe.sh https://raw.githubusercontent.com/straubt1/tfe/master/tfe.sh
 
 # Source functions
 . tfe.sh
