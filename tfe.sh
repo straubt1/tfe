@@ -29,12 +29,13 @@ validate_s3(){
   tfe_log "INFO" "Getting S3 Information from replicatedctl"
 
   # TODO: Check which placement and update validate to call the proper cloud
-  tfe_placement=$(replicatedctl app-config export | jq -r '.placement.value')
-  s3_bucket=$(replicatedctl app-config export | jq -r '.s3_bucket.value')
-  s3_endpoint=$(replicatedctl app-config export | jq -r '.s3_endpoint.value')
-  s3_region=$(replicatedctl app-config export | jq -r '.s3_region.value')
-  s3_sse=$(replicatedctl app-config export | jq -r '.s3_sse.value')
-  s3_sse_kms_key_id=$(replicatedctl app-config export | jq -r '.s3_sse_kms_key_id.value')
+  replicated_app_export=$(replicatedctl app-config export | jq .)
+  tfe_placement=$(echo ${replicated_app_export} | jq -r '.placement.value')
+  s3_bucket=$(echo ${replicated_app_export} | jq -r '.s3_bucket.value')
+  s3_endpoint=$(echo ${replicated_app_export} | jq -r '.s3_endpoint.value')
+  s3_region=$(echo ${replicated_app_export} | jq -r '.s3_region.value')
+  s3_sse=$(echo ${replicated_app_export} | jq -r '.s3_sse.value')
+  s3_sse_kms_key_id=$(echo ${replicated_app_export} | jq -r '.s3_sse_kms_key_id.value')
 
   tfe_log "INFO" "S3 Bucket Configuration:"
   tfe_log "INFO" "  tfe_placement      ${tfe_placement}"
@@ -44,8 +45,12 @@ validate_s3(){
   tfe_log "INFO" "  s3_sse             ${s3_sse}"
   tfe_log "INFO" "  s3_sse_kms_key_id  ${s3_sse_kms_key_id}"
 
+  tfe_log "INFO" "Lookup local Docker image with aws cli installed"
+  awscli_image=$(sudo docker image list --format '{{.Repository}}:{{.Tag}}' | grep "hashicorp/build-worker")
+  tfe_log "INFO" "  Image: ${awscli_image}"
+
   tfe_log "INFO" "Validate S3 Connectivity"
-  sudo docker run --rm -it hashicorp/build-worker:now /bin/bash -c "aws s3 ls s3://${s3_bucket}"
+  sudo docker run --rm -it ${awscli_image} /bin/bash -c "aws s3 ls --region ${s3_region} s3://${s3_bucket}"
 
   retVal=$?
   if [ $retVal -ne 0 ]; then
@@ -59,11 +64,12 @@ validate_postgres(){
 
   tfe_log "INFO" "Getting Postgres Information from replicatedctl"
 
-  pg_netloc=$(replicatedctl app-config export | jq -r '.pg_netloc.value')
-  pg_dbname=$(replicatedctl app-config export | jq -r '.pg_dbname.value')
-  pg_user=$(replicatedctl app-config export | jq -r '.pg_user.value')
-  pg_password=$(replicatedctl app-config export | jq -r '.pg_password.value')
-  pg_extra_params=$(replicatedctl app-config export | jq -r '.pg_extra_params.value')
+  replicated_app_export=$(replicatedctl app-config export | jq .)
+  pg_netloc=$(echo ${replicated_app_export} | jq -r '.pg_netloc.value')
+  pg_dbname=$(echo ${replicated_app_export} | jq -r '.pg_dbname.value')
+  pg_user=$(echo ${replicated_app_export} | jq -r '.pg_user.value')
+  pg_password=$(echo ${replicated_app_export} | jq -r '.pg_password.value')
+  pg_extra_params=$(echo ${replicated_app_export} | jq -r '.pg_extra_params.value')
   pg_host=$(echo ${pg_netloc} | cut -d ":" -f 1)
   pg_port=$(echo ${pg_netloc} | cut -d ":" -f 2)
 
@@ -99,7 +105,8 @@ validate_tls() {
 
   tfe_log "INFO" "Getting TFE Information from replicatedctl"
 
-  hostname=$(replicatedctl app-config export | jq -r '.hostname.value')
+  replicated_app_export=$(replicatedctl app-config export | jq .)
+  hostname=$(echo ${replicated_app_export} | jq -r '.hostname.value')
   well-known-url="https://${hostname}/.well-known/terraform.json"
 
   tfe_log "INFO" "TFE Configuration:"
@@ -163,4 +170,11 @@ validate_replicated_conf_file() {
   
   tfe_log "INFO" "Validating Replicated Configuration - Done"
 
+}
+
+validate_tfe() {
+  validate_replicated_conf_file
+  validate_s3
+  validate_postgres
+  validate_tls
 }
