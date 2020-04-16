@@ -50,7 +50,7 @@ validate_s3(){
   tfe_log "INFO" "  Image: ${awscli_image}"
 
   tfe_log "INFO" "Validate S3 Connectivity"
-  sudo docker run --rm -it ${awscli_image} /bin/bash -c "aws s3 ls s3://${s3_bucket}"
+  sudo docker run --rm -it ${awscli_image} /bin/bash -c "aws s3 ls --region ${s3_region} s3://${s3_bucket}"
 
   retVal=$?
   if [ $retVal -ne 0 ]; then
