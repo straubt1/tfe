@@ -29,7 +29,7 @@ validate_s3(){
   tfe_log "INFO" "Getting S3 Information from replicatedctl"
 
   # TODO: Check which placement and update validate to call the proper cloud
-  replicated_app_export=$(echo ${replicated_app_export} | jq .)
+  replicated_app_export=$(replicatedctl app-config export | jq .)
   tfe_placement=$(echo ${replicated_app_export} | jq -r '.placement.value')
   s3_bucket=$(echo ${replicated_app_export} | jq -r '.s3_bucket.value')
   s3_endpoint=$(echo ${replicated_app_export} | jq -r '.s3_endpoint.value')
@@ -64,7 +64,7 @@ validate_postgres(){
 
   tfe_log "INFO" "Getting Postgres Information from replicatedctl"
 
-  replicated_app_export=$(echo ${replicated_app_export} | jq .)
+  replicated_app_export=$(replicatedctl app-config export | jq .)
   pg_netloc=$(echo ${replicated_app_export} | jq -r '.pg_netloc.value')
   pg_dbname=$(echo ${replicated_app_export} | jq -r '.pg_dbname.value')
   pg_user=$(echo ${replicated_app_export} | jq -r '.pg_user.value')
@@ -105,7 +105,7 @@ validate_tls() {
 
   tfe_log "INFO" "Getting TFE Information from replicatedctl"
 
-  replicated_app_export=$(echo ${replicated_app_export} | jq .)
+  replicated_app_export=$(replicatedctl app-config export | jq .)
   hostname=$(echo ${replicated_app_export} | jq -r '.hostname.value')
   well-known-url="https://${hostname}/.well-known/terraform.json"
 
@@ -172,7 +172,7 @@ validate_replicated_conf_file() {
 
 }
 
-validate_tfe(){
+validate_tfe() {
   validate_replicated_conf_file
   validate_s3
   validate_postgres
