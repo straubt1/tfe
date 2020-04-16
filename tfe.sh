@@ -171,3 +171,10 @@ validate_replicated_conf_file() {
   tfe_log "INFO" "Validating Replicated Configuration - Done"
 
 }
+
+validate_tfe(){
+  validate_replicated_conf_file
+  validate_s3
+  validate_postgres
+  validate_tls
+}
