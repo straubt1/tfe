@@ -1,0 +1,35 @@
+name: Python Application - Linux
+
+on:
+  push:
+    branches: [ts-python]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: BjornLuG/substitute-string-action@v1
+        id: inject_version
+        with:
+          _input-file: "./tfe.py"
+          _output-file: "./tfe.py"
+          _format-key: "%%version%%"
+          version: "v0.0.0 branch ${{ github.base_ref }} (${{ github.sha }})"
+      - name: Build with PyInstaller for Linux
+        run: docker run --rm -v "$(pwd):/src" cdrx/pyinstaller-linux:python3
+      - name: Copy to Release
+        run: |
+          mkdir -p ./release
+          cp ./dist/linux/tfe ./release/tfe
+      - name: Commit onefile binary from PyInstaller
+        uses: EndBug/add-and-commit@v4
+        with:
+          author_name: Tom Straub
+          author_email: tstraub@hashicorp.com
+          message: "PyInstaller --onefile Binary Auto-Commit"
+          add: "./release/tfe"
+          force: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

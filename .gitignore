@@ -29,3 +29,11 @@ override.tf.json
 # example: *tfplan*
 
 NOTES.md
+python/
+venv/
+build/
+dist/
+__pycache__/
+.ssh/
+.idea/
+*rsa*
