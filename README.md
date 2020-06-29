@@ -14,7 +14,7 @@ Download and run:
 
 ```sh
 # Copy tfe cli
-curl -L https://github.com/straubt1/tfe/raw/ts-python/release/tfe -o tfe
+curl -L https://github.com/straubt1/tfe/raw/main/release/tfe -o tfe
 chmod +x tfe
 sudo ./tfe --help
 ```
