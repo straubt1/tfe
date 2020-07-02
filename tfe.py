@@ -1,6 +1,7 @@
 
 import click
 import os
+import platform
 import subprocess
 import json
 import boto3
@@ -12,8 +13,10 @@ import time
 import ssl
 import socket
 import OpenSSL
+import psutil
 from google.cloud import storage
 from google.oauth2 import service_account
+from hurry.filesize import size
 
 from replicatedctl import ReplicatedCtl
 
@@ -27,53 +30,61 @@ def cli():
 @cli.command()
 def validate_all():
     if not verify_replicated(): exit(1)
+    get_system_information()
     p_validatehealthchecks()
     p_validatehostname()
     p_validates3()
     p_validatepostgres()
-    p_validatealternativeworkerimage()
+    p_validateworkerimage()
     p_validatetls()
 
 
 @cli.command()
 def validate_s3():
     if not verify_replicated(): exit(1)
+    get_system_information()
     p_validates3()
 
 
 @cli.command()
 def validate_postgres():
     if not verify_replicated(): exit(1)
+    get_system_information()
     p_validatepostgres()
 
 
 @cli.command()
 def validate_hostname():
     if not verify_replicated(): exit(1)
+    get_system_information()
     p_validatehostname()
 
 
 @cli.command()
 def validate_wellknown():
     if not verify_replicated(): exit(1)
+    get_system_information()
     p_validatewellknown()
 
 
 @cli.command()
-def validate_alternative_worker_image():
+def validate_worker_image():
     if not verify_replicated(): exit(1)
-    p_validatealternativeworkerimage()
+    get_system_information()
+    p_validateworkerimage()
 
 
 @cli.command()
 def validate_tls():
     if not verify_replicated(): exit(1)
+    get_system_information()
     p_validatetls()
 
 
 @cli.command()
 def validate_healthchecks():
     if not verify_replicated(): exit(1)
+    get_system_information()
     p_validatehealthchecks()
 
 
@@ -301,8 +312,8 @@ def p_validatewellknown():
     click.echo()
 
 
-def p_validatealternativeworkerimage():
-    click.echo(click.style('Validate Alternative Worker Image...', bold=True))
+def p_validateworkerimage():
+    click.echo(click.style('Validate Worker Image...', bold=True))
 
     repl = ReplicatedCtl()
     settings = repl.getSettings()
@@ -351,7 +362,7 @@ def p_validatetls():
     click.echo(click.style('Configuration:', fg='blue'))
     click.echo(f'   {click.style("TFE Hostname", bold=True)}:  {hostname}')
 
-    click.echo(click.style(f'Requesting Certificate Information:', fg='blue'))
+    click.echo(click.style(f'Certificate Information:', fg='blue'))
     try:
         cert = ssl.get_server_certificate((hostname, 443))
         x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
@@ -361,7 +372,6 @@ def p_validatetls():
             if 'subjectAltName' in str(ext.get_short_name()):
                 sans = ext.__str__()
 
-        click.echo(click.style('Certificate Information:', fg='yellow'))
         click.echo(f'   {click.style("commonName", bold=True)}:  {x509.get_subject().commonName}')
         click.echo(f'   {click.style("issuer", bold=True)}:      {x509.get_issuer().organizationName}, {x509.get_issuer().commonName}')
         click.echo(f'   {click.style("notBefore", bold=True)}:   {x509.get_notBefore().decode("utf-8")}')
@@ -369,7 +379,6 @@ def p_validatetls():
         click.echo(f'   {click.style("sans", bold=True)}:        {sans}')
     except Exception as e:
         click.echo(click.style(f'[Failed] Requesting Certificate Information: {e}', fg='red'))
-    click.echo()
 
     click.echo(click.style(f'Requesting Certificate from TFE instance:', fg='blue'))
     try:
@@ -377,7 +386,6 @@ def p_validatetls():
         click.echo(click.style('Success!', fg='green'))
     except requests.exceptions.SSLError as e:
         click.echo(click.style(f'[Failed] Requesting Certificate from TFE instance: {e}', fg='red'))
-    click.echo()
 
     click.echo(click.style(f'Requesting Certificate from TFE worker image:', fg='blue'))
     try:
@@ -474,6 +482,38 @@ def verify_replicated():
     except:
         click.echo(click.style("TFE is not running: Failure running `replicatedctl`", fg='red'))
         return False
+
+def get_system_information():
+    try:
+        click.echo(click.style(f'System Information:', fg='blue'))
+        
+        click.echo(f'   {click.style("OS System", bold=True)}:           {platform.uname().system}')
+        click.echo(f'   {click.style("OS Release", bold=True)}:          {platform.uname().release}')
+        
+        cpu = psutil.cpu_count()
+        mem = size(psutil.virtual_memory().total)
+        disk = size(psutil.disk_usage('/').total)
+        click.echo(f'   {click.style("CPU Count", bold=True)}:           {cpu}')
+        click.echo(f'   {click.style("Total Memory", bold=True)}:        {mem}')
+        click.echo(f'   {click.style("Total Disk Space", bold=True)}:    {disk}')
+        
+        out = subprocess.Popen(['/usr/local/bin/replicatedctl', 'version'],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT)
+        stdout, stderr = out.communicate()        
+        click.echo(f'   {click.style("Replicated Version", bold=True)}:  {stdout}')
+
+        out = subprocess.Popen(['/usr/local/bin/replicatedctl', 'app', 'inspect'],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT)
+        stdout, stderr = out.communicate()
+        tfeapp = json.loads(stdout)
+        tfe_sequence = tfeapp[0].get('Sequence')
+        click.echo(f'   {click.style("TFE Sequence", bold=True)}:        {tfe_sequence}')
+
+    except:
+        click.echo(click.style("Failed to get system information", fg='red'))
+    click.echo()
 
 def get_worker_image(client):
     # Get worker iamge
