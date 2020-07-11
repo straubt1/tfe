@@ -2,7 +2,7 @@ name: Python Application - Linux
 
 on:
   push:
-    branches: [main, tt-*]
+    branches: [main]
 
 jobs:
   build:
