@@ -240,6 +240,7 @@ def p_validatehostname():
         dns_query = dns.resolver.Resolver()
         resp = dns_query.query(hostname)
         click.echo(resp.rrset)
+        click.echo(click.style('Success!', fg='green'))
     except Exception:
         click.echo(click.style(f'Resolving hostname from TFE instance: FAILED', fg='red'))
     click.echo()
@@ -252,11 +253,9 @@ def p_validatehostname():
         container = client.containers.run(image_name, f'getent hosts {hostname}', remove=True)
         click.echo(container.decode('utf-8'))
         client.close()
+        click.echo(click.style('Success!', fg='green'))
     except Exception:
         click.echo(click.style(f'Resolving hostname from TFE worker image: FAILED', fg='red'))
-    # click.echo()
-
-    click.echo(click.style('Done!', fg='green'))
     click.echo()
 
 
@@ -347,7 +346,7 @@ def p_validateworkerimage():
         print()
         return
 
-    click.echo(click.style('Done!', fg='green'))
+    click.echo(click.style('Success!', fg='green'))
     click.echo()
 
 
@@ -399,13 +398,12 @@ def p_validatetls():
             click.echo(click.style(f'[Failed] {response}', fg='red'))
         else:
             click.echo(click.style('Success!', fg='green'))
+        click.echo()
 
         container.remove()
         client.close()
     except Exception as e:
         click.echo(click.style(f'[Failed] Requesting Certificate from TFE worker image: {e}', fg='red'))
-    click.echo(click.style('Done!', fg='green'))
-    click.echo()
 
 
 def p_validatehealthchecks():
@@ -461,9 +459,6 @@ def p_validatehealthchecks():
             click.echo(click.style(f'[Failed] {resp} {json.dumps(checks, indent=2)}', fg='red'))
     except Exception:
         click.echo(click.style(f'[Failed] Requesting Internal TFE Health Check: {resp.text}', fg='red'))
-    click.echo()
-
-    click.echo(click.style('Done!', fg='green'))
     click.echo()
 
 

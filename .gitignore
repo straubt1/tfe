@@ -37,3 +37,4 @@ __pycache__/
 .ssh/
 .idea/
 *rsa*
+.github/unusedworkflows/
