@@ -29,7 +29,6 @@ dpath==1.5.0
 filelock==3.0.12
 filetype==1.0.5
 flake8==3.8.3
-get==2019.4.13
 gitdb2==2.0.6
 GitPython==3.0.4
 google-api-core==1.21.0
@@ -59,7 +58,6 @@ netaddr==0.7.19
 parse==1.12.1
 parse-type==0.5.2
 Pillow==7.1.0
-post==2019.4.13
 protobuf==3.12.2
 psutil==5.7.0
 psycopg2-binary==2.8.5
@@ -80,7 +78,6 @@ pytz==2020.1
 PyYAML==5.2
 query-string==2019.4.13
 radish-bdd==0.13.1
-request==2019.4.13
 requests==2.22.0
 rsa==4.6
 s3transfer==0.3.3
