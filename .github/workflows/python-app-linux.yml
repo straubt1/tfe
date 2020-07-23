@@ -2,7 +2,7 @@ name: Python Application - Linux
 
 on:
   push:
-    branches: [main]
+    branches: [main, tt*]
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
           _input-file: "./tfe.py"
           _output-file: "./tfe.py"
           _format-key: "%%version%%"
-          version: "v0.0.0 branch ${{ github.base_ref }} (${{ github.sha }})"
+          version: "v0.0.1 branch ${{ github.base_ref }} (${{ github.sha }})"
       - name: Build with PyInstaller for Linux
         run: docker run --rm -v "$(pwd):/src" cdrx/pyinstaller-linux:python3
       - name: Copy to Release

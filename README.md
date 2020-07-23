@@ -13,7 +13,7 @@ Utility to validate common Terraform Enterprise Configurations on a running TFE 
 Download and run:
 
 ```sh
-# Copy tfe cli
+# Copy the tfe cli
 curl -L https://github.com/straubt1/tfe/raw/main/release/tfe -o tfe
 chmod +x tfe
 sudo ./tfe --help
@@ -22,6 +22,12 @@ sudo ./tfe --help
 ## Checks
 
 The following is a list of the things that we will check.
+
+## All
+
+**Command**: `tfe validate-all` 
+
+Run every validate command below.
 
 ### Object Storage Connectivity
 
@@ -64,7 +70,7 @@ Verify that the '.well-known/terraform.json' endpoint is accessible from the ins
 
 ## Alternative Worker Image
 
-<!-- **Command**: `tfe validate-workerimage`  -->
+**Command**: `tfe validate-worker-image` 
 
 If using an Alternative Worker Image, image is available in `docker images`.
 
@@ -74,7 +80,7 @@ If using an Alternative Worker Image, image is available in `docker images`.
 
 ## TLS
 
-<!-- **Command**: `tfe validate-tls`  -->
+**Command**: `tfe validate-tls` 
 
 Verify proper trust is available to the TFE instance from itself.
 
@@ -83,7 +89,7 @@ Verify proper trust is available to the TFE instance from itself.
 
 ## Health Checks
 
-<!-- **Command**: `tfe validate-healthchecks`  -->
+**Command**: `tfe validate-healthchecks` 
 
 TFE is serving healthy checks.
 
