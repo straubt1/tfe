@@ -16,7 +16,7 @@ checkov==1.0.181
 click==7.1.1
 colorama==0.4.3
 colorful==0.5.4
-cryptography==2.8
+cryptography==3.2
 cssselect2==0.3.0
 defusedxml==0.6.0
 diagrams==0.7.3
