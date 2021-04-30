@@ -80,7 +80,7 @@ query-string==2019.4.13
 radish-bdd==0.13.1
 request==2019.4.13
 requests==2.22.0
-rsa==4.6
+rsa==4.7
 s3transfer==0.3.3
 six==1.13.0
 smmap2==2.0.5
