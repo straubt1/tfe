@@ -93,7 +93,7 @@ tinycss2==1.0.2
 toml==0.9.6
 tornado==6.0.3
 typed-ast==1.4.0
-urllib3==1.25.7
+urllib3==1.25.8
 virtualenv==20.0.18
 WeasyPrint==51
 webencodings==0.5.1
